@@ -1,0 +1,7 @@
+{
+  "/api/loans/route": "app/api/loans/route.js",
+  "/api/books/route": "app/api/books/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/books/page": "app/dashboard/books/page.js",
+  "/dashboard/reports/loans/page": "app/dashboard/reports/loans/page.js"
+}

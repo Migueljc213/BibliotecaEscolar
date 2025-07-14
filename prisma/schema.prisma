@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./biblioteca.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Book {
+  id              String    @id @default(cuid())
+  code            String    @unique 
+  title           String   
+  author          String    
+  publisher       String   
+  genre           String   
+  entryDate       DateTime 
+  quantity        Int       @default(1) 
+  loansCount      Int       @default(0) 
+  currentQuantity Int       @default(1) 
+  deletedAt       DateTime? 
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  loans Loan[]
+  auditLogs BookAuditLog[]
+}
+
+model Student {
+  id           String   @id @default(cuid())
+  name         String
+  registration String   @unique // Matricula
+  class        String?  // Specific class
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  loans Loan[]
+}
+
+model Loan {
+  id          String    @id @default(cuid())
+  bookId      String
+  studentId   String
+  borrowedAt  DateTime  @default(now())
+  dueDate     DateTime  
+  returnedAt  DateTime? 
+  status      LoanStatus @default(ACTIVE)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  book    Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model BookAuditLog {
+  id          String      @id @default(cuid())
+  bookId      String
+  action      AuditAction 
+  fieldName   String?     // Nome do campo alterado (para UPDATE)
+  oldValue    String?     // Valor anterior
+  newValue    String?     // Novo valor
+  description String      // Descrição da ação
+  userId      String?     // ID do usuário que fez a alteração
+  createdAt   DateTime    @default(now())
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  ADMIN
+  LIBRARIAN
+}
+
+enum LoanStatus {
+  ACTIVE
+  RETURNED
+  OVERDUE
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  RESTORE
+}
